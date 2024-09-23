@@ -1,42 +1,33 @@
-numpy: Used for numerical computations, particularly arrays and basic operations like mean.
-pandas: Not used in this specific code but could be used if the data were in a DataFrame format.
-matplotlib.pyplot: Used to plot the original data, trend, and seasonality.
+numpy: Provides numerical operations (e.g., handling arrays).
+pandas: Used for handling and analyzing structured data, like CSV files.
+matplotlib.pyplot: Used for creating visualizations (plots/graphs).
 
-n = len(data): Calculates the total number of data points in the time series.
-m_t = np.zeros(n): Initializes an array m_t with zeros of the same length as data, which will store the calculated trend.
-for t in range(q, n - q): Loops through the middle of the dataset, skipping the first and last q points because the moving average window extends beyond the boundaries for those points.
-np.mean(data[t-q:t+q+1]): Calculates the mean of 2*q + 1 data points centered at index t (the moving average).
-return m_t: Returns the trend array m_t
+input: Prompts the user to enter the file path of a CSV file.
+pd.read_csv: Reads the specified CSV file into a pandas DataFrame (df).
 
-n = len(data): Length of the data.
-m_t = np.zeros(n): Initialize a zero array to store the trend.
-d = 2 * q: The window size for the moving average is calculated (even number).
-for t in range(q, n - q): Loops through the data as in the odd case, skipping q points on either end.
-m_t[t] = (0.5 * data[t-q] + np.sum(data[t-q+1:t+q]) + 0.5 * data[t+q]) / d: Calculates the moving average for an even window. The first and last points in the window are weighted by 0.5. The rest of the points are summed and divided by the window size d.
+Displays the first few rows of the DataFrame: df.head(): Displays the first 5 rows of the DataFrame to give the user an overview of the data.
 
-n = len(data): Get the total number of data points.
-w_k = np.zeros(n): Initialize an array to store the seasonality and irregularity (w_k).
-for k in range(n): Loop through each data point.
-summation = 0, count = 0: Initialize variables to sum the detrended values and count how many points are valid.
-for j in range(-(n // d), n // d): Loop through multiple periods (denoted by d).
-if 0 <= k + j*d < n: Ensure the calculated index remains within bounds.
-summation += data[k + j*d] - trend[k + j*d]: Subtract the trend from the data point to detrend it, then add this detrended value to summation.
-w_k[k] = summation / count: Calculate the average of the detrended values for the current time point.
+Prompts the user to select the time series column: The user inputs the column name from the CSV file that contains the time series data.
 
-n = len(w_k): Get the length of w_k.
-avg_w = np.mean(w_k): Compute the mean of w_k to remove any irregularity from the data.
-g_k = np.zeros(n): Initialize an array to store the seasonality component (g_k).
-for k in range(n): Loop through each data point.
-g_k[k] = w_k[k] - avg_w: Subtract the mean of w_k to isolate the pure seasonal component (g_k).
+Extracts the time series data: df[column_name]: Accesses the selected column from the DataFrame.
+.values: Converts the column into a NumPy array.
 
-data = np.array([...]): Example time series data (replace it with your data).
-q = int(input("enter q value: ")): Prompts the user to input a value for q, which is the window size for the moving average.
-if len(data) % 2 == 1: Checks if the data length is odd or even to apply the appropriate moving average function.
-trend = moving_average_odd(data, q) or moving_average_even(data, q): Calculates the trend depending on the data length.
-w_k = calculate_w_k(data, trend, q): Calculates the seasonality and irregularity component.
-g_k = calculate_g_k(w_k, q): Calculates the pure seasonality component by removing the irregularity.
+Prompts the user to enter q: q is the half-window size for the moving average that will be used to smooth the time series (for trend calculation). It’s used to decide how many points around the central point to include in the moving average calculation.
 
-plt.subplot(311): Creates the first plot showing the original data.
-plt.subplot(312): Creates the second plot showing the calculated trend.
-plt.subplot(313): Creates the third plot showing the seasonality.
-plt.show(): Displays the plots.
+Initializes necessary variables:
+n: The length of the time series.
+Tline = np.zeros(n): Initializes an array of zeros of the same length as the time series. This array will store the trend values after they are calculated.
+
+If the length of the time series is odd: The code checks whether the length of the time series is odd (% 2 == 1). If it is, it applies a simple moving average with a window size of 2q + 1. For each index i from q to n-q, it takes a slice from i-q to i+q+1 (this creates a window of size 2q+1), computes the mean of these values, and assigns it to Tline[i].
+
+If the length of the time series is even: If the length of the time series is even, a different approach is used for the moving average:
+d = 2 * q: The window size is set to 2q (since it’s even). A weighted moving average is calculated: The first and last elements in the window (i-q and i+q) are weighted by 0.5. The middle elements are summed using np.sum. The weighted sum is then divided by d (the window size).
+
+Computes the seasonal component: seasonal_effect = np.zeros(n): Initializes an array of zeros to store the seasonal effect for each point.
+The outer loop iterates over each index i in the time series. For each i, the code computes the difference between the original time series and the trend (time_series[i + j * q] - Tline[i + j * q]). The differences are averaged over multiple periods (calculated using j * q steps), and the average is stored in seasonal_effect[i]. count ensures that only valid indices are used (those that lie within the bounds of the time series).
+
+Removes the mean seasonality: avg_seasonality = np.mean(seasonal_effect): Computes the mean of the seasonal effects. adjusted_seasonal = seasonal_effect - avg_seasonality: Removes the mean seasonality from the seasonal component to ensure it is centered around zero.
+
+Prints the calculated trend and seasonal components: The trend (Tline) and the seasonality (adjusted_seasonal) are displayed in the console.
+
+Creates a figure and subplot for the original data: plt.figure(figsize=(10, 6)): Initializes a plot with a figure size of 10x6 inches. plt.subplot(311): Creates a 3-row, 1-column subplot, and selects the first subplot. plt.plot(time_series, label="Original Data"): Plots the original time series data and labels it as "Original Data". plt.legend(loc='upper left'): Adds a legend in the upper left corner of the plot.
