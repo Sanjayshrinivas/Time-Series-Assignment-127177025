@@ -1,111 +1,42 @@
-# Time-Series-Assignment-127177025
-Explanation of the code:
-import pandas as pd
-import matplotlib.pyplot as plt
-from statsmodels.tsa.seasonal import seasonal_decompose
+numpy: Used for numerical computations, particularly arrays and basic operations like mean.
+pandas: Not used in this specific code but could be used if the data were in a DataFrame format.
+matplotlib.pyplot: Used to plot the original data, trend, and seasonality.
 
-• import pandas as pd: This imports the pandas library, which is used for data 
-manipulation and analysis. It allows for reading and working with structured data 
-(like CSV files).
-• import matplotlib.pyplot as plt: This imports matplotlib.pyplot and assigns it 
-the alias plt. It's used for creating visualizations, such as plots and graphs.
-• from statsmodels.tsa.seasonal import seasonal_decompose: This imports 
-the seasonal_decompose function from the statsmodels library. This function 
-decomposes a time series into three parts: trend, seasonality, and residuals.
+n = len(data): Calculates the total number of data points in the time series.
+m_t = np.zeros(n): Initializes an array m_t with zeros of the same length as data, which will store the calculated trend.
+for t in range(q, n - q): Loops through the middle of the dataset, skipping the first and last q points because the moving average window extends beyond the boundaries for those points.
+np.mean(data[t-q:t+q+1]): Calculates the mean of 2*q + 1 data points centered at index t (the moving average).
+return m_t: Returns the trend array m_t
 
-def load_data(csv_file):
- df = pd.read_csv(csv_file, parse_dates=['Year'], index_col='Year')
- return df
-• def load_data(csv_file): Defines a function called load_data that takes a file path 
-(csv_file) as an argument.
-• df = pd.read_csv(csv_file, parse_dates=['Year'], index_col='Year'): Reads the CSV 
-file into a DataFrame (df) using pandas.
-• parse_dates=['Year']: This converts the 'Year' column into datetime objects.
-• index_col='Year': This sets the 'Year' column as the index of the DataFrame, 
-making it easier to handle time-series data.
-• return df: Returns the DataFrame df containing the loaded data.
-def decompose_time_series(df, column, model='multiplicative', freq=None):
- decomposition = seasonal_decompose(df[column], model=model, period=freq)
- return decomposition
-• def decompose_time_series(df, column, model='multiplicative', freq=None):
-Defines a function to decompose the time series.
-• df: The DataFrame containing the time series data.
-• column: The specific column (in the DataFrame) containing the time-series 
-values.
-• model='multiplicative': This specifies the type of decomposition model to use 
-(either 'multiplicative' or 'additive'). Multiplicative assumes that variations 
-increase over time, while additive assumes a constant variation.
-• freq=None: This parameter represents the frequency of the data, e.g., how often 
-it repeats (yearly, monthly, etc.). It's set to None by default, but can be passed in.
-• decomposition = seasonal_decompose(df[column], model=model, 
-period=freq):
-• Uses the seasonal_decompose function to break the time series in df[column]
-into its observed, trend, seasonality, and residual components.
-• The decomposition model (additive or multiplicative) and frequency (period) are 
-defined by the parameters.
-• return decomposition: Returns the decomposition object containing the trend, 
-seasonality, and observed data.
-def plot_decomposition(decomposition):
- plt.figure(figsize=(10, 6))
- 
- plt.subplot(311)
- plt.plot(decomposition.observed, label='Observed')
- plt.legend(loc='upper left')
- plt.subplot(312)
- plt.plot(decomposition.trend, label='Trend', color='orange')
- plt.legend(loc='upper left')
- plt.subplot(313)
- plt.plot(decomposition.seasonal, label='Seasonality', color='green')
- plt.legend(loc='upper left')
- 
- plt.tight_layout()
- plt.show()
-• def plot_decomposition(decomposition): Defines a function to plot the time 
-series decomposition (observed, trend, and seasonality).
-• plt.figure(figsize=(10, 6)): Creates a new figure for plotting with a specified size 
-(10 inches wide by 6 inches tall).
-First subplot:
-• plt.subplot(311): Creates the first subplot (out of three rows). The 311 means: 3 
-rows, 1 column, and this is the 1st plot.
-• plt.plot(decomposition.observed, label='Observed'): Plots the observed timeseries data.
-• plt.legend(loc='upper left'): Adds a legend to the plot in the upper left corner.
-Second subplot:
-• plt.subplot(312): Creates the second subplot (in the middle row).
-• plt.plot(decomposition.trend, label='Trend', color='orange'): Plots the trend data 
-in orange.
-• plt.legend(loc='upper left'): Adds a legend to the plot.
-Third subplot:
-• plt.subplot(313): Creates the third and last subplot (in the bottom row).
-• plt.plot(decomposition.seasonal, label='Seasonality', color='green'): Plots the 
-seasonality data in green.
-• plt.legend(loc='upper left'): Adds a legend to the plot.
->plt.tight_layout(): Automatically adjusts the layout of the plots to prevent overlap.
-> plt.show(): Displays the plot.
-def analyze_trend_seasonality(csv_file, column, model='multiplicative', 
-freq=None):
- df = load_data(csv_file)
- decomposition = decompose_time_series(df, column, model, freq)
- plot_decomposition(decomposition)
-• def analyze_trend_seasonality(csv_file, column, model='multiplicative', 
-freq=None):: This is the main function that orchestrates the entire analysis 
-process.
-• It takes the path to the CSV file (csv_file), the name of the column containing 
-time-series data (column), the type of decomposition model (model), and the 
-frequency (freq).
-• df = load_data(csv_file): Calls the load_data function to load the CSV data into a 
-DataFrame.
-• decomposition = decompose_time_series(df, column, model, freq): 
-Decomposes the time series using the specified model and frequency.
-• plot_decomposition(decomposition): Plots the observed data, trend, and 
-seasonality.
-csv_file = '/content/Amazon.csv' 
-column = 'Billion USD' 
-analyze_trend_seasonality(csv_file, column, model='multiplicative', freq=12)
-• csv_file = '/content/Amazon.csv': Specifies the path to the CSV file to be 
-analyzed.
-• column = 'Billion USD': Specifies the name of the column in the CSV that 
-contains the time-series data for analysis.
-• analyze_trend_seasonality(csv_file, column, model='multiplicative', freq=12): 
-Calls the analyze_trend_seasonality function to load the data, decompose the 
-time series, and plot the results. Here, the freq=12 assumes monthly data with a 
-yearly seasonality
+n = len(data): Length of the data.
+m_t = np.zeros(n): Initialize a zero array to store the trend.
+d = 2 * q: The window size for the moving average is calculated (even number).
+for t in range(q, n - q): Loops through the data as in the odd case, skipping q points on either end.
+m_t[t] = (0.5 * data[t-q] + np.sum(data[t-q+1:t+q]) + 0.5 * data[t+q]) / d: Calculates the moving average for an even window. The first and last points in the window are weighted by 0.5. The rest of the points are summed and divided by the window size d.
+
+n = len(data): Get the total number of data points.
+w_k = np.zeros(n): Initialize an array to store the seasonality and irregularity (w_k).
+for k in range(n): Loop through each data point.
+summation = 0, count = 0: Initialize variables to sum the detrended values and count how many points are valid.
+for j in range(-(n // d), n // d): Loop through multiple periods (denoted by d).
+if 0 <= k + j*d < n: Ensure the calculated index remains within bounds.
+summation += data[k + j*d] - trend[k + j*d]: Subtract the trend from the data point to detrend it, then add this detrended value to summation.
+w_k[k] = summation / count: Calculate the average of the detrended values for the current time point.
+
+n = len(w_k): Get the length of w_k.
+avg_w = np.mean(w_k): Compute the mean of w_k to remove any irregularity from the data.
+g_k = np.zeros(n): Initialize an array to store the seasonality component (g_k).
+for k in range(n): Loop through each data point.
+g_k[k] = w_k[k] - avg_w: Subtract the mean of w_k to isolate the pure seasonal component (g_k).
+
+data = np.array([...]): Example time series data (replace it with your data).
+q = int(input("enter q value: ")): Prompts the user to input a value for q, which is the window size for the moving average.
+if len(data) % 2 == 1: Checks if the data length is odd or even to apply the appropriate moving average function.
+trend = moving_average_odd(data, q) or moving_average_even(data, q): Calculates the trend depending on the data length.
+w_k = calculate_w_k(data, trend, q): Calculates the seasonality and irregularity component.
+g_k = calculate_g_k(w_k, q): Calculates the pure seasonality component by removing the irregularity.
+
+plt.subplot(311): Creates the first plot showing the original data.
+plt.subplot(312): Creates the second plot showing the calculated trend.
+plt.subplot(313): Creates the third plot showing the seasonality.
+plt.show(): Displays the plots.
